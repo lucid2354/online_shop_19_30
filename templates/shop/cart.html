@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Корзина{% endblock %}
+
+{% block content %}
+    <h1 class="h3 mb-3">Корзина</h1>
+
+    {% if cart.items.all %}
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Товар</th>
+                            <th>Цена</th>
+                            <th>Количество</th>
+                            <th>Сумма</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart.items.all %}
+                            <tr>
+                                <td>{{ item.product.name }}</td>
+                                <td>${{ item.product.price }}</td>
+                                <td>
+                                    <form action="{% url 'update_cart_item' item.id %}" method="post">
+                                        {% csrf_token %}
+                                        <input class="form-control d-inline-block" style="width: 70px" type="number"
+                                               min="0" max="{{ item.product.stock }}" name="quantity" value="{{ item.quantity }}">
+                                        <button class="btn btn-sm btn-outline-primary" type="submit">Ок</button>
+                                    </form>
+                                </td>
+                                <td>${{ item.total_price }}</td>
+                                <td>
+                                    <form action="{% url 'remove_cart_item' item.id %}" method="post">
+                                        {% csrf_token %}
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">Удалить</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <p class="text-end fs-5 mt-3">Итого: <b>${{ cart.total_price }}</b></p>
+    {% else %}
+        <p>Корзина пуста.</p>
+    {% endif %}
+{% endblock %}

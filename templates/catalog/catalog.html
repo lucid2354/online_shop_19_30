@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Каталог{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <aside class="col-md-3 mb-3">
+            <div class="card text-bg-primary mb-3">
+                <div class="card-header">Категории</div>
+                <div class="list-group list-group-flush">
+                    <a class="list-group-item" href="{% url 'catalog' %}">Все товары</a>
+                    {% for category in categories %}
+                        <a class="list-group-item" href="{% url 'products_by_category' category.slug %}">
+                            {{ category.name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </aside>
+
+        <section class="col-md-9">
+            <h1 class="h3">
+                {% if current_category %}{{ current_category.name }}
+                {% elif query %}Результаты поиска
+                {% else %}Каталог{% endif %}
+            </h1>
+
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+                {% for product in products %}
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="product-image">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <h2 class="h6">{{ product.name }}</h2>
+                                <p class="fw-bold">${{ product.price }}</p>
+                                <a class="btn btn-primary btn-sm" href="{% url 'product_detail' product.slug %}">Подробнее</a>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>Товары не найдены.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+{% endblock %}

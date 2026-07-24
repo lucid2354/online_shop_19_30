@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+    <p><a href="{% url 'catalog' %}">Каталог</a> / {{ product.category.name }}</p>
+
+    <div class="card mb-4">
+        <div class="row g-0">
+            <div class="col-md-5 product-detail-image">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" class="img-fluid" alt="{{ product.name }}">
+                {% endif %}
+            </div>
+            <div class="col-md-7">
+                <div class="card-body">
+                    <h1 class="h3">{{ product.name }}</h1>
+                    <p class="fs-4 fw-bold">${{ product.price }}</p>
+                    <p>{% if product.in_stock %}В наличии{% else %}Нет в наличии{% endif %}</p>
+                    <div>{{ product.description|linebreaks }}</div>
+
+                    {% if user.is_authenticated %}
+                        <form action="{% url 'add_to_cart' product.slug %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button class="btn btn-primary" type="submit">В корзину</button>
+                        </form>
+                        <form action="{% url 'toggle_wishlist' product.slug %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button class="btn btn-danger" type="submit">♡</button>
+                        </form>
+                    {% else %}
+                        <a class="btn btn-primary" href="{% url 'login' %}">Войти</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section>
+        <h2 class="h4">Отзывы</h2>
+
+        {% if user.is_authenticated %}
+            <form action="{% url 'add_review' product.slug %}" method="post" class="card card-body mb-3">
+                {% csrf_token %}
+                <select name="rating" class="form-select mb-2">
+                    <option value="5">5⭐</option>
+                    <option value="4">4⭐</option>
+                    <option value="3">3⭐</option>
+                    <option value="2">2⭐</option>
+                    <option value="1">1⭐</option>
+                </select>
+                <textarea class="form-control mb-2" name="comment" rows="3"></textarea>
+                <button class="btn btn-primary align-self-start" type="submit">Отправить</button>
+            </form>
+        {% endif %}
+
+        {% for review in product.reviews.all %}
+            <div class="card card-body mb-2">
+                <b>{{ review.user.username }} — {{ review.rating }}⭐</b>
+                <div>{{ review.comment }}</div>
+            </div>
+        {% empty %}
+            <p>Отзывов нет.</p>
+        {% endfor %}
+    </section>
+{% endblock %}
